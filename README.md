@@ -1,36 +1,161 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestionnaire de Tâches avec Next.js et Spring Boot
 
-## Getting Started
+Cette application est un gestionnaire de tâches personnelles et professionnelles utilisant Next.js pour le frontend et consommant une API REST Spring Boot.
 
-First, run the development server:
+## Prérequis
+
+- Node.js (v16.0.0 ou plus récent)
+- npm (v7.0.0 ou plus récent)
+- API Spring Boot en cours d'exécution sur http://localhost:8080
+
+## Installation
+
+1. Clonez ce dépôt ou téléchargez les fichiers source
+
+2. Installez les dépendances :
+
+```bash
+npm install
+```
+
+3. Si vous rencontrez une erreur concernant `@babel/runtime/regenerator`, installez les dépendances supplémentaires nécessaires :
+
+```bash
+npm install --save @babel/runtime regenerator-runtime
+```
+
+## Démarrage de l'application
+
+### Lancer en mode développement
+
+Pour démarrer l'application en mode développement :
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera accessible à l'adresse [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Construire pour la production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Pour construire l'application pour la production :
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Cette commande génère une version optimisée de l'application dans le dossier `.next`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Lancer en mode production
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Après avoir construit l'application, vous pouvez la démarrer en mode production :
 
-## Deploy on Vercel
+```bash
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Fonctionnalités
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cette application permet de :
+
+- Visualiser les tâches personnelles et professionnelles
+- Ajouter de nouvelles tâches (personnelles ou professionnelles)
+- Modifier le statut des tâches (En cours / Terminé)
+- Supprimer des tâches
+- Définir des priorités (Basse / Moyenne / Haute)
+
+## Structure de l'API
+
+L'application est conçue pour fonctionner avec une API Spring Boot exposant les endpoints suivants :
+
+- `GET /taches` - Récupère toutes les tâches (personnelles et professionnelles)
+- `POST /tachePersonnelles` - Crée une nouvelle tâche personnelle
+- `POST /tacheProfessionnelles` - Crée une nouvelle tâche professionnelle
+- `PUT /tachePersonnelles/{id}` - Met à jour une tâche personnelle existante
+- `PUT /tacheProfessionnelles/{id}` - Met à jour une tâche professionnelle existante
+- `DELETE /tachePersonnelles/{id}` - Supprime une tâche personnelle
+- `DELETE /tacheProfessionnelles/{id}` - Supprime une tâche professionnelle
+
+## Résolution des problèmes courants
+
+### Erreur "turbo.createProject" is not supported by the wasm bindings
+
+Si vous rencontrez cette erreur, essayez l'une des solutions suivantes :
+
+1. Installez les dépendances Babel nécessaires :
+```bash
+npm install --save-dev @babel/core @babel/preset-env @babel/preset-react babel-loader
+npm install --save @babel/runtime regenerator-runtime
+```
+
+2. Créez un fichier `.babelrc` à la racine du projet avec le contenu suivant :
+```json
+{
+  "presets": ["next/babel"]
+}
+```
+
+3. Utilisez un fichier `next.config.js` minimaliste :
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {}
+
+module.exports = nextConfig
+```
+
+### Erreur CORS
+
+Si vous rencontrez des erreurs CORS lors de l'accès à l'API Spring Boot, assurez-vous que votre backend autorise les requêtes provenant de votre application Next.js. Voici un exemple de configuration à ajouter dans votre application Spring Boot :
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+}
+```
+
+## Variables d'environnement
+
+Pour personnaliser l'URL de l'API, vous pouvez définir des variables d'environnement :
+
+1. Créez un fichier `.env.local` à la racine du projet avec le contenu suivant :
+```
+NEXT_PUBLIC_API_URL=http://votre-api.com
+```
+
+2. Modifiez la ligne de code dans `app/page.js` ou `pages/index.js` :
+```javascript
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+```
+
+## Architecture du projet
+
+- `app/page.js` ou `pages/index.js` - Composant principal de l'application
+- `app/page.module.css` ou `styles/Home.module.css` - Styles CSS modulaires
+- `next.config.js` - Configuration de Next.js
+- `package.json` - Dépendances et scripts npm
+
+## Développement futur
+
+Pour améliorer cette application, vous pourriez envisager :
+
+- Ajouter l'authentification des utilisateurs
+- Implémenter des filtres et des recherches de tâches
+- Ajouter des tableaux de bord et des statistiques
+- Implémenter des notifications pour les tâches avec dates d'échéance
+- Ajouter un système de catégories et d'étiquettes
+
+## Licence
+
+[MIT](LICENSE)
+
+---
+
+N'hésitez pas à contribuer à ce projet en soumettant des pull requests ou en signalant des problèmes !
