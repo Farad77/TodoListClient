@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import styles from './page.module.css'; // Assurez-vous que le chemin est correct
+import styles from './page.module.css';
 
 const API_URL = 'http://localhost:8080';
 
@@ -21,7 +21,10 @@ export default function Home() {
     statut: 'EN_COURS',
     priorite: 'BASSE',
     type: 'personnelle',
-    utilisateur: null
+    utilisateur: '',
+    projet: '',
+    client: '',
+    facturable: false
   });
   
   // Statistiques
@@ -106,15 +109,46 @@ export default function Home() {
     }
   };
 
+  // Fonction de validation du formulaire
+  const validateForm = () => {
+    let isValid = true;
+    let errorMessage = '';
+    
+    if (!nouvelleTache.titre) {
+      errorMessage = 'Le titre est obligatoire.';
+      isValid = false;
+    } else if (!nouvelleTache.utilisateur && !selectedUtilisateur) {
+      errorMessage = 'Vous devez associer la tâche à un utilisateur.';
+      isValid = false;
+    }
+    
+    if (!isValid) {
+      setError(errorMessage);
+    } else {
+      setError(null);
+    }
+    
+    return isValid;
+  };
+
   const ajouterTache = async (e) => {
     e.preventDefault();
     
+    // Validation avant soumission
+    if (!validateForm()) {
+      return;
+    }
+    
     try {
-      const { type, ...tacheData } = nouvelleTache;
+      const { type, utilisateur, ...tacheData } = nouvelleTache;
       
-      if (selectedUtilisateur) {
-        tacheData.utilisateur = `/utilisateurs/${selectedUtilisateur}`;
-      }
+      // Utiliser l'utilisateur du filtre ou celui sélectionné dans le formulaire
+      const utilisateurUrl = selectedUtilisateur 
+        ? `/utilisateurs/${selectedUtilisateur}` 
+        : utilisateur;
+      
+      // Ajouter la référence à l'utilisateur
+      tacheData.utilisateur = utilisateurUrl;
       
       const endpoint = type === 'personnelle' 
         ? `${API_URL}/tachePersonnelles` 
@@ -130,7 +164,10 @@ export default function Home() {
         statut: 'EN_COURS',
         priorite: 'BASSE',
         type: 'personnelle',
-        utilisateur: null
+        utilisateur: '',
+        projet: '',
+        client: '',
+        facturable: false
       });
       
       setShowModal(false);
@@ -189,15 +226,28 @@ export default function Home() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setNouvelleTache({
       ...nouvelleTache,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     });
   };
 
   const handleUtilisateurChange = (e) => {
     setSelectedUtilisateur(e.target.value);
+  };
+
+  // Gérer l'ouverture du modal d'ajout
+  const handleOpenAddModal = () => {
+    // Si un utilisateur est déjà sélectionné dans le filtre, 
+    // pré-remplissez le formulaire avec celui-ci
+    if (selectedUtilisateur) {
+      setNouvelleTache({
+        ...nouvelleTache,
+        utilisateur: `/utilisateurs/${selectedUtilisateur}`
+      });
+    }
+    setShowModal(true);
   };
 
   const extractIdFromUrl = (url) => {
@@ -273,6 +323,21 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {selectedUtilisateur && (
+          <div className={styles.userContext}>
+            <div className={styles.userContextIcon}>👤</div>
+            <div className={styles.userContextContent}>
+              <p>Vous visualisez les tâches de <strong>{getUserById(selectedUtilisateur)}</strong></p>
+              <button 
+                onClick={() => setSelectedUtilisateur('')}
+                className={styles.resetFilterButton}
+              >
+                Voir toutes les tâches
+              </button>
+            </div>
+          </div>
+        )}
         
         <div className={styles.filterGroup}>
           <label htmlFor="utilisateur" className={styles.filterLabel}>Utilisateur:</label>
@@ -296,7 +361,7 @@ export default function Home() {
         
         <button 
           className={styles.addButton}
-          onClick={() => setShowModal(true)}
+          onClick={handleOpenAddModal}
         >
           <span className={styles.addIcon}>+</span>
           Ajouter une tâche
@@ -336,8 +401,9 @@ export default function Home() {
                         </span>
                         
                         {tache._links && tache._links.utilisateur && (
-                          <span>
-                            Assignée à: {getUserById(extractIdFromUrl(tache._links.utilisateur.href))}
+                          <span className={styles.assignedUser}>
+                            <span className={styles.userIcon}>👤</span>
+                            {getUserById(extractIdFromUrl(tache._links.utilisateur.href))}
                           </span>
                         )}
                       </div>
@@ -396,8 +462,9 @@ export default function Home() {
                         <span>Facturable: {tache.facturable ? 'Oui' : 'Non'}</span>
                         
                         {tache._links && tache._links.utilisateur && (
-                          <span>
-                            Assignée à: {getUserById(extractIdFromUrl(tache._links.utilisateur.href))}
+                          <span className={styles.assignedUser}>
+                            <span className={styles.userIcon}>👤</span>
+                            {getUserById(extractIdFromUrl(tache._links.utilisateur.href))}
                           </span>
                         )}
                       </div>
@@ -442,7 +509,9 @@ export default function Home() {
             <div className={styles.modalBody}>
               <form onSubmit={ajouterTache}>
                 <div className={styles.formGroup}>
-                  <label htmlFor="titre" className={styles.label}>Titre</label>
+                  <label htmlFor="titre" className={styles.label}>
+                    Titre <span className={styles.required}>*</span>
+                  </label>
                   <input
                     type="text"
                     id="titre"
@@ -476,8 +545,7 @@ export default function Home() {
                       className={styles.select}
                     >
                       <option value="BASSE">Basse</option>
-                   
-                        <option value="MOYENNE">Moyenne</option>
+                      <option value="MOYENNE">Moyenne</option>
                       <option value="HAUTE">Haute</option>
                     </select>
                   </div>
@@ -497,28 +565,35 @@ export default function Home() {
                   </div>
                 </div>
                 
-                {!selectedUtilisateur && (
-                  <div className={styles.formGroup}>
-                    <label htmlFor="utilisateur" className={styles.label}>Attribuer à</label>
-                    <select
-                      id="utilisateur"
-                      name="utilisateur"
-                      value={nouvelleTache.utilisateur || ''}
-                      onChange={handleChange}
-                      className={styles.select}
-                    >
-                      <option value="">Aucun utilisateur</option>
-                      {utilisateurs.map((utilisateur) => (
-                        <option 
-                          key={extractIdFromUrl(utilisateur._links.self.href)} 
-                          value={`/utilisateurs/${extractIdFromUrl(utilisateur._links.self.href)}`}
-                        >
-                          {utilisateur.prenom} {utilisateur.nom}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                <div className={styles.formGroup}>
+                  <label htmlFor="utilisateur" className={styles.label}>
+                    Attribuer à <span className={styles.required}>*</span>
+                  </label>
+                  <select
+                    id="utilisateur"
+                    name="utilisateur"
+                    value={selectedUtilisateur ? `/utilisateurs/${selectedUtilisateur}` : nouvelleTache.utilisateur}
+                    onChange={handleChange}
+                    className={styles.select}
+                    required
+                    disabled={selectedUtilisateur ? true : false}
+                  >
+                    <option value="">Sélectionner un utilisateur</option>
+                    {utilisateurs.map((utilisateur) => (
+                      <option 
+                        key={extractIdFromUrl(utilisateur._links.self.href)} 
+                        value={`/utilisateurs/${extractIdFromUrl(utilisateur._links.self.href)}`}
+                      >
+                        {utilisateur.prenom} {utilisateur.nom}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedUtilisateur && (
+                    <p className={styles.fieldHint}>
+                      La tâche sera attribuée à {getUserById(selectedUtilisateur)}
+                    </p>
+                  )}
+                </div>
                 
                 {nouvelleTache.type === 'professionnelle' && (
                   <>
