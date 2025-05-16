@@ -1,0 +1,269 @@
+/* Styles de base pour la page */
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #2c3e50;
+  color: white;
+  padding-top: 20px;
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.sidebarItem:hover {
+  background-color: #34495e;
+}
+
+.sidebarIcon {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+/* Contenu principal */
+.content {
+  flex: 1;
+  padding: 25px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Bouton d'ajout */
+.addButton {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.addButton:hover {
+  background-color: #2980b9;
+}
+
+.addIcon {
+  margin-right: 8px;
+}
+
+/* Liste des utilisateurs */
+.userList {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.listTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  padding: 20px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.usersTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.usersTable th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-align: left;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eaeaea;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.usersTable td {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.usersTable tr:last-child td {
+  border-bottom: none;
+}
+
+.usersTable tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Styles des données utilisateur */
+.userName {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.userEmail {
+  color: #7f8c8d;
+}
+
+.userDate {
+  color: #7f8c8d;
+}
+
+/* Boutons d'action */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.viewButton {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  background-color: #2980b9;
+}
+
+.deleteButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #c0392b;
+}
+
+/* Style pour les modales */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #95a5a6;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.modalFooter {
+  padding: 15px 20px;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelButton {
+  background-color: #ecf0f1;
+  color: #7f8c8d;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background-color: #dfe6e9;
+}
+
+.submitButton {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background-color: #2980b9;
+}

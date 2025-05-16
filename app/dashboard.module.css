@@ -6,14 +6,7 @@
   display: flex;
   min-height: 100vh;
 }
-.statusTag {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-}
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -321,11 +314,11 @@
   border-radius: 50rem;
   margin-left: 8px;
   background-color: var(--secondary);
-  color: rgb(16, 255, 219);
+  color: white;
 }
 
 .card {
-  background-color: rgb(228, 30, 30);
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 20px;

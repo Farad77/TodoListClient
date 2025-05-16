@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation'; // ou 'next/router' pour Pages Router
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import styles from '../page.module.css'; // Ajustez le chemin selon votre structure
+import styles from './page.module.css'; // Assurez-vous que le chemin est correct
 
 const API_URL = 'http://localhost:8080';
 
@@ -11,6 +11,7 @@ export default function Utilisateurs() {
   const [utilisateurs, setUtilisateurs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [nouvelUtilisateur, setNouvelUtilisateur] = useState({
     nom: '',
     prenom: '',
@@ -18,7 +19,6 @@ export default function Utilisateurs() {
   });
   const router = useRouter();
 
-  // Récupérer tous les utilisateurs
   useEffect(() => {
     fetchUtilisateurs();
   }, []);
@@ -35,40 +35,37 @@ export default function Utilisateurs() {
       setError(null);
     } catch (err) {
       console.error('Erreur lors de la récupération des utilisateurs:', err);
-      setError('Impossible de charger les utilisateurs. Vérifiez que votre API Spring est en cours d\'exécution.');
+      setError('Impossible de charger les utilisateurs.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Ajouter un nouvel utilisateur
   const ajouterUtilisateur = async (e) => {
     e.preventDefault();
     
     try {
-      const response = await axios.post(`${API_URL}/utilisateurs`, nouvelUtilisateur);
+      await axios.post(`${API_URL}/utilisateurs`, nouvelUtilisateur);
       
-      // Ajouter le nouvel utilisateur à la liste
       fetchUtilisateurs();
       
-      // Réinitialiser le formulaire
       setNouvelUtilisateur({
         nom: '',
         prenom: '',
         email: '',
       });
+      
+      setShowModal(false);
     } catch (err) {
       console.error('Erreur lors de l\'ajout de l\'utilisateur:', err);
       setError('Impossible d\'ajouter l\'utilisateur.');
     }
   };
 
-  // Supprimer un utilisateur
   const supprimerUtilisateur = async (url) => {
     try {
       await axios.delete(url);
       
-      // Mettre à jour la liste des utilisateurs
       setUtilisateurs(utilisateurs.filter(utilisateur => 
         utilisateur._links.self.href !== url
       ));
@@ -78,7 +75,6 @@ export default function Utilisateurs() {
     }
   };
 
-  // Gérer les changements dans le formulaire
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNouvelUtilisateur({
@@ -87,12 +83,10 @@ export default function Utilisateurs() {
     });
   };
 
-  // Voir les tâches d'un utilisateur
   const voirTaches = (utilisateurId) => {
     router.push(`/?utilisateur=${utilisateurId}`);
   };
 
-  // Extraire l'ID d'une URL
   const extractIdFromUrl = (url) => {
     const parts = url.split('/');
     return parts[parts.length - 1];
@@ -100,84 +94,171 @@ export default function Utilisateurs() {
 
   return (
     <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>Gestion des Utilisateurs</h1>
-        
-        <Link href="/" className={styles.backLink}>
-          ← Retour à la liste des tâches
+      <div className={styles.sidebar}>
+        <Link href="/" className={styles.sidebarItem}>
+          <span className={styles.sidebarIcon}>📊</span>
+          Tableau de bord
         </Link>
+        <Link href="/utilisateurs" className={styles.sidebarItem}>
+          <span className={styles.sidebarIcon}>👥</span>
+          Utilisateurs
+        </Link>
+        <Link href="/" className={styles.sidebarItem}>
+          <span className={styles.sidebarIcon}>📝</span>
+          Tâches
+        </Link>
+        <Link href="/" className={styles.sidebarItem}>
+          <span className={styles.sidebarIcon}>📅</span>
+          Calendrier
+        </Link>
+        <Link href="/" className={styles.sidebarItem}>
+          <span className={styles.sidebarIcon}>⚙️</span>
+          Paramètres
+        </Link>
+      </div>
+
+      <div className={styles.content}>
+        <h1 className={styles.pageTitle}>Gestion des Utilisateurs</h1>
         
-        {error && <p className={styles.error}>{error}</p>}
-        
-        <form onSubmit={ajouterUtilisateur} className={styles.form}>
-          <input
-            type="text"
-            name="nom"
-            placeholder="Nom"
-            value={nouvelUtilisateur.nom}
-            onChange={handleChange}
-            required
-            className={styles.input}
-          />
-          <input
-            type="text"
-            name="prenom"
-            placeholder="Prénom"
-            value={nouvelUtilisateur.prenom}
-            onChange={handleChange}
-            required
-            className={styles.input}
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={nouvelUtilisateur.email}
-            onChange={handleChange}
-            required
-            className={styles.input}
-          />
+        <button 
+          className={styles.addButton}
+          onClick={() => setShowModal(true)}
+        >
+          <span className={styles.addIcon}>+</span>
+          Ajouter un utilisateur
+        </button>
+
+        {error && <div className={styles.error}>{error}</div>}
+
+        <div className={styles.userList}>
+          <h2 className={styles.listTitle}>Liste des Utilisateurs</h2>
           
-          <button type="submit" className={styles.button}>Ajouter Utilisateur</button>
-        </form>
-        
-        {loading ? (
-          <p>Chargement des utilisateurs...</p>
-        ) : (
-          <div className={styles.usersContainer}>
-            <h2>Liste des Utilisateurs ({utilisateurs.length})</h2>
-            <ul className={styles.userList}>
-              {utilisateurs.length === 0 ? (
-                <p>Aucun utilisateur trouvé.</p>
-              ) : (
-                utilisateurs.map(utilisateur => (
-                  <li key={extractIdFromUrl(utilisateur._links.self.href)} className={styles.userItem}>
-                    <div className={styles.userContent}>
-                      <h3>{utilisateur.prenom} {utilisateur.nom}</h3>
-                      <p>Email: {utilisateur.email}</p>
-                      <p>Inscription: {new Date(utilisateur.dateInscription).toLocaleDateString()}</p>
-                    </div>
-                    <div className={styles.userActions}>
-                      <button
-                        onClick={() => voirTaches(extractIdFromUrl(utilisateur._links.self.href))}
-                        className={styles.viewButton}
-                      >
-                        Voir les tâches
-                      </button>
-                      <button
-                        onClick={() => supprimerUtilisateur(utilisateur._links.self.href)}
-                        className={styles.deleteButton}
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  </li>
-                ))
-              )}
-            </ul>
+          {loading ? (
+            <p className={styles.loading}>Chargement des utilisateurs...</p>
+          ) : (
+            <table className={styles.usersTable}>
+              <thead>
+                <tr>
+                  <th>UTILISATEUR</th>
+                  <th>EMAIL</th>
+                  <th>DATE D'INSCRIPTION</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {utilisateurs.length === 0 ? (
+                  <tr>
+                    <td colSpan="4">Aucun utilisateur trouvé.</td>
+                  </tr>
+                ) : (
+                  utilisateurs.map(utilisateur => (
+                    <tr key={extractIdFromUrl(utilisateur._links.self.href)}>
+                      <td className={styles.userName}>
+                        {utilisateur.prenom} {utilisateur.nom}
+                      </td>
+                      <td className={styles.userEmail}>{utilisateur.email}</td>
+                      <td className={styles.userDate}>
+                        {new Date(utilisateur.dateInscription).toLocaleDateString()}
+                      </td>
+                      <td>
+                        <div className={styles.actions}>
+                          <button
+                            onClick={() => voirTaches(extractIdFromUrl(utilisateur._links.self.href))}
+                            className={styles.viewButton}
+                          >
+                            Voir les tâches
+                          </button>
+                          <button
+                            onClick={() => supprimerUtilisateur(utilisateur._links.self.href)}
+                            className={styles.deleteButton}
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+      
+      {showModal && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Ajouter un nouvel utilisateur</h2>
+              <button 
+                className={styles.modalClose}
+                onClick={() => setShowModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className={styles.modalBody}>
+              <form onSubmit={ajouterUtilisateur}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="prenom" className={styles.label}>Prénom</label>
+                  <input
+                    type="text"
+                    id="prenom"
+                    name="prenom"
+                    value={nouvelUtilisateur.prenom}
+                    onChange={handleChange}
+                    required
+                    className={styles.input}
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label htmlFor="nom" className={styles.label}>Nom</label>
+                  <input
+                    type="text"
+                    id="nom"
+                    name="nom"
+                    value={nouvelUtilisateur.nom}
+                    onChange={handleChange}
+                    required
+                    className={styles.input}
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label htmlFor="email" className={styles.label}>Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={nouvelUtilisateur.email}
+                    onChange={handleChange}
+                    required
+                    className={styles.input}
+                  />
+                </div>
+                
+                <div className={styles.modalFooter}>
+                  <button 
+                    type="button" 
+                    className={styles.cancelButton}
+                    onClick={() => setShowModal(false)}
+                  >
+                    Annuler
+                  </button>
+                  <button 
+                    type="submit" 
+                    className={styles.submitButton}
+                  >
+                    Ajouter
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   );
 }
