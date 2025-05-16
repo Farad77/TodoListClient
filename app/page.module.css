@@ -128,3 +128,65 @@
 .deleteButton:hover {
   background-color: #c3352b;
 }
+/* Styles pour la navigation et les liens */
+.userLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #0070f3;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.userLink:hover {
+  text-decoration: underline;
+}
+
+/* Styles pour le filtre par utilisateur */
+.filterSection {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resetButton {
+  padding: 0.3rem 0.5rem;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  width: fit-content;
+}
+
+.resetButton:hover {
+  background-color: #e0e0e0;
+}
+
+/* Styles pour l'info utilisateur */
+.userInfo {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #f8f9fa;
+  border-left: 4px solid #0070f3;
+  border-radius: 4px;
+}
+
+.userInfo h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+/* Styles pour l'affichage de l'utilisateur assigné */
+.assignedUser {
+  font-style: italic;
+  background-color: #e8f4f8;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
